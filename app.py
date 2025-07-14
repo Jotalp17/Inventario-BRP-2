@@ -32,6 +32,7 @@ CAMPOS_PDF = [
     "Dias Liberación", "Fecha Liberación", "Avance RC"
 ]
 
+
 def extraer_patente_con_google(imagen):
     buffered = io.BytesIO()
     imagen.save(buffered, format="JPEG")
@@ -63,6 +64,14 @@ def extraer_patente_con_google(imagen):
         st.error(f"❌ Error procesando la imagen. Intenta con otra o revisa la API Key.\n\n{e}")
         return ""
 
+
+def formato_moneda(valor):
+    try:
+        valor = float(valor)
+        return "$ {:,.0f}".format(valor).replace(",", ".")
+    except:
+        return valor
+
 def generar_pdf(data):
     fila = data.iloc[0]
     pdf = FPDF()
@@ -85,9 +94,11 @@ def generar_pdf(data):
     pdf.set_font("Arial", '', 11)
     for campo in CAMPOS_PDF:
         if campo in fila:
-            valor = str(fila[campo])
+            valor = fila[campo]
+            if any(keyword in campo.lower() for keyword in ["precio", "valor", "costo"]):
+                valor = formato_moneda(valor)
             pdf.cell(60, 8, campo, 1)
-            pdf.cell(130, 8, valor, 1)
+            pdf.cell(130, 8, str(valor), 1)
             pdf.ln()
 
     pdf.set_font("Arial", 'I', 9)
