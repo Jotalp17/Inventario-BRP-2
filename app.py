@@ -8,7 +8,7 @@ import io
 
 st.set_page_config(page_title="Inventario BRP", layout="centered")
 st.title("Inventario BRP 🚗")
-st.markdown("Sube o toma una foto de una patente y la IA te mostrará los datos del vehículo desde el inventario.")
+st.markdown("Sube o toma una foto de una patente o ingrésala manualmente. La IA te mostrará los datos del vehículo desde el inventario.")
 
 @st.cache_data
 def cargar_datos():
@@ -50,8 +50,7 @@ def extraer_patente_con_google(imagen):
         st.markdown("### 🧠 Texto detectado por Google Cloud Vision:")
         st.code(texto_detectado)
 
-        # Normalizar texto
-        texto_normalizado = re.sub(r"[^A-Z0-9]", "", texto_detectado.upper())
+        texto_normalizado = texto_detectado.upper().replace(" ", "").replace("-", "").replace("·", "").replace("°", "")
         match = re.search(r"[A-Z]{2,4}[0-9]{2,4}", texto_normalizado)
         if match:
             return match.group(0)
@@ -61,18 +60,27 @@ def extraer_patente_con_google(imagen):
         return ""
 
 # Interfaz principal
-imagen = st.file_uploader("📷 Foto de la patente", type=["jpg", "jpeg", "png"])
-if imagen:
-    st.image(imagen, use_container_width=True)
-    img = Image.open(imagen)
-    patente = extraer_patente_con_google(img)
+opcion = st.radio("Selecciona cómo deseas ingresar la patente:", ["Subir imagen", "Ingresar manualmente"])
+
+patente = ""
+
+if opcion == "Subir imagen":
+    imagen = st.file_uploader("📷 Foto de la patente", type=["jpg", "jpeg", "png"])
+    if imagen:
+        st.image(imagen, use_container_width=True)
+        img = Image.open(imagen)
+        patente = extraer_patente_con_google(img)
+
+elif opcion == "Ingresar manualmente":
+    entrada_manual = st.text_input("✍️ Ingresa la patente del vehículo")
+    if entrada_manual:
+        patente = re.sub(r"[^A-Z0-9]", "", entrada_manual.upper())
+
+if patente:
     st.markdown(f"### 🔍 Patente detectada por IA: `{patente}`")
-    if patente:
-        res = inventario[inventario['PPU_normalizado'] == patente]
-        if not res.empty:
-            st.success("✅ Vehículo encontrado:")
-            st.dataframe(res)
-        else:
-            st.error("🚫 Patente no encontrada en el inventario.")
+    res = inventario[inventario['PPU_normalizado'] == patente]
+    if not res.empty:
+        st.success("✅ Vehículo encontrado:")
+        st.dataframe(res)
     else:
-        st.warning("⚠️ No se detectó una patente válida. Intenta otra imagen.")
+        st.error("🚫 Patente no encontrada en el inventario.")
