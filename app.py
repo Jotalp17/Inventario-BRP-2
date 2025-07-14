@@ -1,4 +1,3 @@
-
 import streamlit as st
 import pandas as pd
 import requests
@@ -19,7 +18,7 @@ def cargar_datos():
 
 inventario = cargar_datos()
 
-# Función para usar Google Cloud Vision OCR
+# Función mejorada para usar Google Cloud Vision OCR
 def extraer_patente_con_google(imagen):
     buffered = io.BytesIO()
     imagen.save(buffered, format="JPEG")
@@ -48,11 +47,11 @@ def extraer_patente_con_google(imagen):
 
     try:
         text = result['responses'][0]['textAnnotations'][0]['description']
-        text = re.sub(r"[^A-Z0-9]", "", text.upper())
+        text = text.upper().replace(" ", "").replace("-", "").replace("·", "")
         match = re.search(r"[A-Z]{2,4}[0-9]{2,4}", text)
         if match:
             return match.group(0)
-        return ""
+        return text
     except Exception as e:
         print("Error al extraer texto:", e)
         return ""
