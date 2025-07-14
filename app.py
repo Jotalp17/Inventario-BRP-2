@@ -21,6 +21,19 @@ def cargar_datos():
 
 inventario = cargar_datos()
 
+CAMPOS_PDF = [
+    "PPU", "N°OP", "Bodega", "Ciudad", "Region", "Ubicación Específica", "Observación Unidad",
+    "Marca", "Modelo", "Año", "Tipo Vehículo", "Giro", "Estado", "Venta", "Canal de Venta",
+    "Estado Mecánico", "Costo Reparación", "Gasto Reparación", "Precio mercado", "Kms",
+    "Transmisión", "Combustible", "Chasis", "Motor", "Color", "Versión", "Fecha Dación",
+    "Fecha Ingreso BRP", "Fecha Inicio Venta", "Dias Stock liberado", "Valor Economico",
+    "Precio Publicación Actual", "Valor Excelente Condición", "Valor Buena Condición",
+    "Valor Regular Condición", "Valor Mala Condición", "Valor Autored", "Proyección Macal",
+    "Categoría Vehiculo", "Origen", "MUNI PERMISO", "VALOR PERMISO", "FECHA VENC PERMISO",
+    "FECHA VENC RT", "FECHA VENC SOAP", "NUMERO MULTAS", "TOTAL REGULARIZACIÓN",
+    "Dias Liberación", "Fecha Liberación", "Avance RC"
+]
+
 def extraer_patente_con_google(imagen):
     buffered = io.BytesIO()
     imagen.save(buffered, format="JPEG")
@@ -56,31 +69,31 @@ def generar_pdf(data):
     fila = data.iloc[0]
     pdf = FPDF()
     pdf.add_page()
-    pdf.set_auto_page_break(auto=True, margin=15)
+    pdf.set_auto_page_break(auto=True, margin=10)
 
-    # Logo
     logo_path = "Tanner Original.png"
     if os.path.exists(logo_path):
         pdf.image(logo_path, x=10, y=8, w=35)
     pdf.set_font("Arial", 'B', 16)
     pdf.set_text_color(0, 70, 140)
-    pdf.cell(0, 10, "Ficha Vehículo BRP", ln=True, align="C")
+    pdf.cell(0, 10, f"Ficha del Vehículo - {fila['PPU']}", ln=True, align="C")
     pdf.ln(10)
 
-    pdf.set_font("Arial", '', 12)
-    pdf.set_text_color(0, 0, 0)
+    pdf.set_fill_color(240, 248, 255)
+    pdf.set_text_color(0)
+    pdf.set_font("Arial", size=10)
 
-    for campo in fila.index:
-        if campo == 'PPU_normalizado':
+    for campo in CAMPOS_PDF:
+        if campo not in fila:
             continue
         valor = str(fila[campo])
-        pdf.set_font("Arial", 'B', 12)
-        pdf.cell(60, 8, f"{campo}:", border=0)
-        pdf.set_font("Arial", '', 12)
-        pdf.multi_cell(0, 8, valor)
+        pdf.set_font("Arial", 'B', 10)
+        pdf.cell(60, 8, f"{campo}", border=1, fill=True)
+        pdf.set_font("Arial", '', 10)
+        pdf.cell(0, 8, valor, border=1, ln=True, fill=True)
 
     pdf.ln(5)
-    pdf.set_font("Arial", 'I', 10)
+    pdf.set_font("Arial", 'I', 9)
     pdf.cell(0, 10, f"Generado el {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}", ln=True, align="R")
 
     output = f"Ficha_{fila['PPU']}.pdf"
