@@ -22,15 +22,13 @@ def cargar_datos():
 inventario = cargar_datos()
 
 CAMPOS_PDF = [
-    "PPU", "N°OP", "Bodega", "Ciudad", "Region", "Ubicación Específica", "Observación Unidad",
-    "Marca", "Modelo", "Año", "Tipo Vehículo", "Giro", "Estado", "Venta", "Canal de Venta",
-    "Estado Mecánico", "Costo Reparación", "Gasto Reparación", "Precio mercado", "Kms",
-    "Transmisión", "Combustible", "Chasis", "Motor", "Color", "Versión", "Fecha Dación",
-    "Fecha Ingreso BRP", "Fecha Inicio Venta", "Dias Stock liberado", "Valor Economico",
-    "Precio Publicación Actual", "Valor Excelente Condición", "Valor Buena Condición",
-    "Valor Regular Condición", "Valor Mala Condición", "Valor Autored", "Proyección Macal",
-    "Categoría Vehiculo", "Origen", "MUNI PERMISO", "VALOR PERMISO", "FECHA VENC PERMISO",
-    "FECHA VENC RT", "FECHA VENC SOAP", "NUMERO MULTAS", "TOTAL REGULARIZACIÓN",
+    "PPU", "N°OP", "Bodega", "Ciudad", "Region", "Ubicación Específica", "Observación Unidad", "Marca", "Modelo", "Año",
+    "Tipo Vehículo", "Giro", "Estado", "Venta", "Canal de Venta", "Estado Mecánico", "Costo Reparación", "Gasto Reparación",
+    "Precio mercado", "Kms", "Transmisión", "Combustible", "Chasis", "Motor", "Color", "Versión", "Fecha Dación",
+    "Fecha Ingreso BRP", "Fecha Inicio Venta", "Dias Stock liberado", "Valor Economico", "Precio Publicación Actual",
+    "Valor Excelente Condición", "Valor Buena Condición", "Valor Regular Condición", "Valor Mala Condición",
+    "Valor Autored", "Proyección Macal", "Categoría Vehiculo", "Origen", "MUNI PERMISO", "VALOR PERMISO",
+    "FECHA VENC PERMISO", "FECHA VENC RT", "FECHA VENC SOAP", "NUMERO MULTAS", "TOTAL REGULARIZACIÓN",
     "Dias Liberación", "Fecha Liberación", "Avance RC"
 ]
 
@@ -73,26 +71,25 @@ def generar_pdf(data):
 
     logo_path = "Tanner Original.png"
     if os.path.exists(logo_path):
-        pdf.image(logo_path, x=10, y=8, w=35)
+        pdf.image(logo_path, x=10, y=8, w=30)
     pdf.set_font("Arial", 'B', 16)
     pdf.set_text_color(0, 70, 140)
-    pdf.cell(0, 10, f"Ficha del Vehículo - {fila['PPU']}", ln=True, align="C")
-    pdf.ln(10)
+    pdf.cell(0, 10, f"Ficha de Vehículo - PPU {fila['PPU']}", ln=True, align="C")
+    pdf.ln(15)
 
-    pdf.set_fill_color(240, 248, 255)
-    pdf.set_text_color(0)
-    pdf.set_font("Arial", size=10)
+    pdf.set_font("Arial", 'B', 12)
+    pdf.set_fill_color(230, 230, 255)
+    pdf.cell(60, 10, "Campo", 1, 0, 'C', 1)
+    pdf.cell(130, 10, "Valor", 1, 1, 'C', 1)
 
+    pdf.set_font("Arial", '', 11)
     for campo in CAMPOS_PDF:
-        if campo not in fila:
-            continue
-        valor = str(fila[campo])
-        pdf.set_font("Arial", 'B', 10)
-        pdf.cell(60, 8, f"{campo}", border=1, fill=True)
-        pdf.set_font("Arial", '', 10)
-        pdf.cell(0, 8, valor, border=1, ln=True, fill=True)
+        if campo in fila:
+            valor = str(fila[campo])
+            pdf.cell(60, 8, campo, 1)
+            pdf.cell(130, 8, valor, 1)
+            pdf.ln()
 
-    pdf.ln(5)
     pdf.set_font("Arial", 'I', 9)
     pdf.cell(0, 10, f"Generado el {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}", ln=True, align="R")
 
