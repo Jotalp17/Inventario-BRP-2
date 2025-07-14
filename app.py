@@ -18,7 +18,7 @@ def cargar_datos():
 
 inventario = cargar_datos()
 
-# Función mejorada para usar Google Cloud Vision OCR
+# Función mejorada de OCR usando Google Cloud Vision
 def extraer_patente_con_google(imagen):
     buffered = io.BytesIO()
     imagen.save(buffered, format="JPEG")
@@ -47,10 +47,11 @@ def extraer_patente_con_google(imagen):
 
     try:
         text = result['responses'][0]['textAnnotations'][0]['description']
-        text = text.upper().replace(" ", "").replace("-", "").replace("·", "")
-        match = re.search(r"[A-Z]{2,4}[0-9]{2,4}", text)
-        if match:
-            return match.group(0)
+        text = text.upper()
+        text = re.sub(r"[^A-Z0-9]", "", text)  # Limpia caracteres no alfanuméricos
+        posibles_patentes = re.findall(r"[A-Z]{2,4}[0-9]{2,4}", text)
+        if posibles_patentes:
+            return posibles_patentes[0]
         return text
     except Exception as e:
         print("Error al extraer texto:", e)
