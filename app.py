@@ -12,12 +12,13 @@ st.markdown("Sube o toma una foto de una patente y la IA te mostrará los datos 
 
 @st.cache_data
 def cargar_datos():
-    df = pd.read_excel("Inventario_Matias_117.xlsx")
+    df = pd.read_excel("Inventario_Matias_117.xlsx", sheet_name="INVENTARIO")
     df['PPU_normalizado'] = df['PPU'].astype(str).str.replace(r"[^A-Z0-9]", "", regex=True).str.upper()
     return df
 
 inventario = cargar_datos()
 
+# Función mejorada para usar Google Cloud Vision OCR
 def extraer_patente_con_google(imagen):
     buffered = io.BytesIO()
     imagen.save(buffered, format="JPEG")
@@ -45,20 +46,18 @@ def extraer_patente_con_google(imagen):
     result = response.json()
 
     try:
-        text = result['responses'][0]['textAnnotations'][0]['description']
-        st.markdown(f"🧠 Texto detectado por Google Cloud Vision:\n\n```\n{text}\n```")
+        texto_detectado = result['responses'][0]['textAnnotations'][0]['description']
+        st.markdown("### 🧠 Texto detectado por Google Cloud Vision:")
+        st.code(texto_detectado)
 
-        # Normaliza el texto
-        text = text.upper().replace("CHILE", "")
-        text = re.sub(r"[^A-Z0-9]", "", text)  # Elimina símbolos y espacios
-
-        match = re.search(r"[A-Z]{2,4}[0-9]{2,4}", text)
+        # Normalizar texto
+        texto_normalizado = re.sub(r"[^A-Z0-9]", "", texto_detectado.upper())
+        match = re.search(r"[A-Z]{2,4}[0-9]{2,4}", texto_normalizado)
         if match:
             return match.group(0)
-        return text
+        return texto_normalizado
     except Exception as e:
-        st.error("❌ Error procesando la imagen. Intenta con otra o revisa la API Key.")
-        print("Error:", e)
+        st.error(f"❌ Error procesando la imagen. Intenta con otra o revisa la API Key.\n\n{e}")
         return ""
 
 # Interfaz principal
@@ -67,8 +66,7 @@ if imagen:
     st.image(imagen, use_container_width=True)
     img = Image.open(imagen)
     patente = extraer_patente_con_google(img)
-    st.markdown(f"**🔍 Patente detectada por IA:** `{patente}`")
-
+    st.markdown(f"### 🔍 Patente detectada por IA: `{patente}`")
     if patente:
         res = inventario[inventario['PPU_normalizado'] == patente]
         if not res.empty:
