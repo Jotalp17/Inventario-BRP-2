@@ -92,7 +92,7 @@ def generar_pdf(data):
     for campo in CAMPOS_PDF:
         if campo in fila:
             valor = fila[campo]
-            if any(keyword in campo.lower() for keyword in ["precio", "valor", "costo"]):
+            if any(keyword in campo.lower() for keyword in ["precio", "valor", "costo", "gasto"]):
                 valor = formato_moneda(valor)
             pdf.cell(60, 8, campo, 1)
             pdf.cell(130, 8, str(valor), 1)
