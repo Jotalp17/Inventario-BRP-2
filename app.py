@@ -32,7 +32,6 @@ CAMPOS_PDF = [
     "Dias Liberación", "Fecha Liberación", "Avance RC"
 ]
 
-
 def extraer_patente_con_google(imagen):
     buffered = io.BytesIO()
     imagen.save(buffered, format="JPEG")
@@ -55,15 +54,12 @@ def extraer_patente_con_google(imagen):
 
     try:
         texto_detectado = result['responses'][0]['textAnnotations'][0]['description']
-        st.markdown("### 🧠 Texto detectado por Google Cloud Vision:")
-        st.code(texto_detectado)
         texto_normalizado = texto_detectado.upper().replace(" ", "").replace("-", "").replace("·", "").replace("°", "")
         match = re.search(r"[A-Z]{2,4}[0-9]{2,4}", texto_normalizado)
         return match.group(0) if match else texto_normalizado
     except Exception as e:
         st.error(f"❌ Error procesando la imagen. Intenta con otra o revisa la API Key.\n\n{e}")
         return ""
-
 
 def formato_moneda(valor):
     try:
@@ -81,13 +77,14 @@ def generar_pdf(data):
     logo_path = "Tanner Original.png"
     if os.path.exists(logo_path):
         pdf.image(logo_path, x=10, y=8, w=30)
+
     pdf.set_font("Arial", 'B', 16)
     pdf.set_text_color(0, 70, 140)
     pdf.cell(0, 10, f"Ficha de Vehículo - PPU {fila['PPU']}", ln=True, align="C")
     pdf.ln(15)
 
     pdf.set_font("Arial", 'B', 12)
-    pdf.set_fill_color(230, 230, 255)
+    pdf.set_fill_color(200, 220, 255)
     pdf.cell(60, 10, "Campo", 1, 0, 'C', 1)
     pdf.cell(130, 10, "Valor", 1, 1, 'C', 1)
 
